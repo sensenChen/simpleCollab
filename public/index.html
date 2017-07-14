@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>Realtime Markdown Viewer</title>
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+      <link href="style.css" rel="stylesheet">
+  </head>
+
+  <body class="container-fluid">
+      <section class="row">
+      <div class="col-md-2"></div>
+     <pre id="editor" class="col-md-8 full-height"></pre>
+<!--        <textarea class="col-md-8 full-height" id="pad"></textarea>-->
+      <div class="col-md-2"></div>
+    </section>
+    <script src="/channel/bcsocket.js"></script>
+    <script src="/share/share.uncompressed.js"></script>
+    <script src="/share/textarea.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="script.js"></script>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+    
+    
+    <script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/tomorrow");
+        editor.session.setMode("ace/mode/c_cpp");
+    </script>
+
+  </body>
+</html>
