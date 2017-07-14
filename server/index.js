@@ -2,12 +2,22 @@
 
 console.log("Listening At Port 3002");
 var io = require('socket.io')();
-io.on('connection', function(socket){
-  socket.on("hi",function(data){
-    console.log(data);
-  });
+var clients = []
 
-  socket.emit("event","hello");
+io.on('connection', function(socket){
+  
+  
+  socket.on("change",function(data){
+    console.log(JSON.parse(data));
+    for(var i=0;i<clients.length;i++){
+      clients[i].emit("change",data);
+    }
+  });
+  
+  socket.on("key",function(data){
+//    clients.push(data.key);
+    clients.push(socket);
+  })
 });
 
 io.listen(3002);

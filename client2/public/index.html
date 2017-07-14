@@ -4,56 +4,110 @@
     <title>
       simple collab
     </title>
+    <style>
+      #foo {
+        width: 300px;
+        border: 1px solid black;
+        height: 100px;
+        padding: 10px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+
+    </style>
   </head>
   <body ng-app="simpleCollab" ng-controller="collab_ctrl">
-    <button>Click</button>
-    <textarea ng-change="bloop()" id="foo" ng-model="db"></textarea>
+    <div ng-model="db" id="foo" onchange="blah()"></div>
+
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-
+    <script src="public/getCarrot.js"></script>
 
     <script>
       var socket = io('http://localhost:3002');
       var app = angular.module("simpleCollab", []);
+      const myKey=1;
+      var doc = document.getElementById('foo');
+      doc.contentEditable = true;
+      doc.focus();
+      console.log(getCaretPosition(),getCaretCharacterOffsetWithin(document.getElementById("foo")));
+      
+      
+      document.addEventListener("keypress", (e)=>{
+        socket.emit("change",JSON.stringify({
+          "value": e.key,
+          "index": getCaretPosition(), 
+          "length": doc.innerHTML.length+1,
+          "op": 'i',
+          "key": myKey
+        }));
+      },false);
+      
+      
+      function blah(){
+        console.log("hi");
+      }
+      
+      
       app.controller("collab_ctrl", function($scope) {
         $scope.db="";
         $scope.pv="";
+        $scope.shifting=false;
+
+        $scope.onKeyDownResult = "";
+        $scope.onKeyUpResult = "";
+        $scope.onKeyPressResult = "";
+
 
         $scope.bloop = function(){
-          socket.emit('hi',{data:$scope.db});
-          console.log($scope.db);
+          console.log("hi");
         }
 
-        // setInterval(function(){
-        //   if($scope.db!=$scope.pv){
-        //     socket.emit('hi',{data:$scope.db});
-        //     $scope.pv = $scope.db;
-        //   }
-        // },10000);
+
+
+        var getKeyboardEventResult = function (keyEvent) {
+          return (window.event ? keyEvent.keyCode : keyEvent.which);
+        };
+
+        // Event handlers
+        $scope.onKeyDown = function ($event) {
+          $scope.onKeyDownResult = getKeyboardEventResult($event);
+          if($scope.onKeyDownResult==16) {
+            $scope.shifting = true;
+          }
+        };
+
+        $scope.onKeyUp = function ($event) {
+          $scope.onKeyUpResult = getKeyboardEventResult($event);
+          if($scope.onKeyDownResult==16) {
+            $scope.shifting = false;
+          }
+        };
+
+        $scope.onKeyPress = function ($event) {
+          $scope.onKeyPressResult = getKeyboardEventResult($event);
+    
+        };
+
+        $scope.onClick = function() {
+        }
       });
 
-
-
-
+      
+         socket.on('change',function(data){
+          console.log(data);
+        })
+      
         socket.on('connect', function(){
-          // console.log(data);
+          socket.emit("key",JSON.stringify({key:myKey}));
         });
         socket.on('event', function(data){
-          console.log(data);
+          // console.log(data);
         });
         socket.on('disconnect', function(){});
-
-        // function bloop(){
-        //   console.log();
-        //
-        //
-        //   socket.emit('hi',{data:"boob"});
-        // }
-
-
-        // socket.emit('connection',{data:true});
     </script>
   </body>
 </html>
