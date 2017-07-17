@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title></title>
+    
+    <style>
+      #firepad {
+        width: 100%;
+        height: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 0px;
+        margin-bottom: 0px;
+      }
+      
+      a.powered-by-firepad {
+        display: none;
+      }
+    </style>
+  </head>  
+  <body onload="init()">
+    <div id="firepad"></div>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
+
+    <!-- Ace -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js"></script>
+
+    <!-- Firepad -->
+    <link rel="stylesheet" href="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.css" />
+    <script src="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.min.js"></script>
+
+    <script>
+      function init() {
+        // Initialize Firebase.
+        var config = {
+          apiKey: "AIzaSyDGwNauUSJWyRtwpJS2WoF-XYf3cdp29TM",
+          authDomain: "simplecollab-a6eb3.firebaseapp.com",
+          databaseURL: "https://simplecollab-a6eb3.firebaseio.com",
+          projectId: "simplecollab-a6eb3",
+          storageBucket: "",
+          messagingSenderId: "558227688118"
+        };
+        firebase.initializeApp(config);
+
+        // Get Firebase Database reference.
+        var firepadRef = firebase.database().ref();
+
+        // Create Ace editor.
+        var editor = ace.edit('firepad');
+        editor.setTheme("ace/theme/tomorrow");
+        editor.getSession().setMode("ace/mode/c_cpp");
+        editor.setShowPrintMargin(false);
+        editor.getSession().setTabSize(2);
+        editor.getSession().setUseWrapMode(true);
+        editor.setOption('indentedSoftWrap', false);
+        editor.focus();
+        
+        // Create Firepad.
+        var firepad = Firepad.fromACE(firepadRef, editor);
+        
+        
+        firepad.on('ready', function() {
+          
+        });
+        
+        firepad.on('synced', function(isSynced) {
+        });
+      }
+    </script>
+  </body>
+</html>
