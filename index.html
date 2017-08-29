@@ -5,13 +5,11 @@
     
     <style>
       #firepad {
-        width: 100%;
         margin-left: auto;
         margin-right: auto;
         margin-top: 0px;
         margin-bottom: 0px;
-        float: left;
-        border: 10px inset orange;
+        border: 10px outset orange;
       }
       
       a.powered-by-firepad {
@@ -75,12 +73,12 @@
         });
         
         $('#firepad').css("height",$(window).innerHeight()-30);
-        $('#firepad').css("width",$(window).innerWidth()-35);
+        $('#firepad').css("width",$(window).innerWidth()-30);
       }
       
       $(window).resize(function(){
         $('#firepad').css('height', $(window).innerHeight()-30);
-        $('#firepad').css("width",$(window).innerWidth()-35);
+        $('#firepad').css("width",$(window).innerWidth()-30);
       });
     </script>
   </body>
