@@ -5,11 +5,20 @@
     
     <style>
       #firepad {
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        border: 10px outset orange;
+/*        border: 10px solid #47484B;*/
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+/*        background-color: #f62;*/
+      }
+      
+      
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
       }
       
       a.powered-by-firepad {
@@ -17,10 +26,14 @@
       }
     </style>
   </head>  
-  <body onload="init()" style="height:100%">
-    <div id="firepad"></div>
-    
-    
+  <body onload="init()">
+    <div>
+      <div id="left">
+      </div>
+      <div id="right">
+        <div id="firepad"></div>  
+      </div>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -72,13 +85,17 @@
         firepad.on('synced', function(isSynced) {
         });
         
-        $('#firepad').css("height",$(window).innerHeight()-30);
-        $('#firepad').css("width",$(window).innerWidth()-30);
+        $('#firepad').css("height",$(window).innerHeight());
+        $('#firepad').css("width",$(window).innerWidth());
+        $('#firepad').css("min-width", '500px');
+        $('.ace_gutter').css("background","#47484B");
+        $('.ace_gutter').css("color","white");
+        $('.ace_gutter-active-line').css("background","#353538");
       }
       
       $(window).resize(function(){
-        $('#firepad').css('height', $(window).innerHeight()-30);
-        $('#firepad').css("width",$(window).innerWidth()-30);
+        $('#firepad').css('height', $(window).innerHeight());
+        $('#firepad').css("width",$(window).innerWidth());
       });
     </script>
   </body>
