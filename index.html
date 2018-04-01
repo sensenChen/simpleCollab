@@ -10,10 +10,10 @@
         top: 0;
         bottom: 0;
         left: 0;
-        right: 0;
+        right: 50%;
 /*        background-color: #f62;*/
+        width: 100%;
       }
-      
       
       body {
         margin: 0px;
@@ -21,18 +21,86 @@
         overflow: hidden;
       }
       
+      #left {
+        min-width: 500px;
+      }
+      
+      #right {
+        position: absolute;
+        top: 0;
+        bottom:0;
+        right: 0;
+/*        border: 1px solid black;*/
+        left: 50%;
+/*        min-width: 500px;*/
+        background: #f1f1f1;
+        border-left: 5px solid black;
+      }
+      
       a.powered-by-firepad {
         display: none;
+      }
+      
+      #output { 
+        position: relative;
+        background: white;
+        left: 0;
+        bottom:0;
+        right: 0;
+        top: 0;
+        height: 100%;
+        padding: 30px;
+      }
+      
+      #run {
+        width: 40%;
+        text-align: center;
+        font-size: 30px;
+        border: 1px solid black;
+        border-radius: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        color: white;
+        background-color: #353538;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        cursor: pointer;
+      }
+      
+      #toggleRun {
+        height: 40px;
+/*        width: 10px;*/
+        background: #353538;
+        position: absolute;
+        top: 5;
+        right: 0;
+        margin-right: 50px;
+        margin-top: 10px;
+        z-index: 10;
+        border-radius: 20px;
+        color: white;
+        font-size: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
+        -o-user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none; 
+        cursor: pointer;
       }
     </style>
   </head>  
   <body onload="init()">
     <div>
       <div id="left">
+        <div id="firepad"></div>
       </div>
-      <div id="right">
-        <div id="firepad"></div>  
+      <div id="right" hidden="true">
+        <div onclick="runCode()" id="run">RUN</div>
+        <div id="output">
+        </div>
       </div>
+      <div onclick="toggleRun()" id="toggleRun">>_</div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -47,8 +115,13 @@
     <!-- Firepad -->
     <link rel="stylesheet" href="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.css" />
     <script src="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.min.js"></script>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
     <script>
+      var socket = io();
+      var firepad;
+      var runOn = false;
+      
       function init() {
         // Initialize Firebase.
         var config = {
@@ -75,19 +148,13 @@
         editor.focus();
         
         // Create Firepad.
-        var firepad = Firepad.fromACE(firepadRef, editor);
-        
-        
-        firepad.on('ready', function() {
-          
-        });
-        
-        firepad.on('synced', function(isSynced) {
-        });
+        firepad = Firepad.fromACE(firepadRef, editor);
+        firepad.on('ready', function() {});
+        firepad.on('synced', function(isSynced) {});
         
         $('#firepad').css("height",$(window).innerHeight());
-        $('#firepad').css("width",$(window).innerWidth());
-        $('#firepad').css("min-width", '500px');
+//        $('#firepad').css("width",$(window).innerWidth());
+//        $('#firepad').css("min-width", '500px');
         $('.ace_gutter').css("background","#47484B");
         $('.ace_gutter').css("color","white");
         $('.ace_gutter-active-line').css("background","#353538");
@@ -96,7 +163,47 @@
       $(window).resize(function(){
         $('#firepad').css('height', $(window).innerHeight());
         $('#firepad').css("width",$(window).innerWidth());
+        
+        $('#right').css('height', $(window).innerHeight());
+        $('#right').css("width",$(window).innerWidth()/2);
       });
+      
+      socket.on("run_success", function(data) {
+//        console.log(data);
+        output.innerText = data;
+      })
+      
+      socket.on("run_fail", function(data) {
+        output.innerText = data;
+        
+      })
+      
+      function toggleRun() {
+        runOn = !runOn;
+        if(runOn) {
+          $("#right").show();
+          
+          $('#firepad').css('height', $(window).innerHeight());
+          $('#firepad').css("width",$(window).innerWidth()/2);
+
+          $('#right').css('height', $(window).innerHeight());
+          $('#right').css("width",$(window).innerWidth()/2);
+        } else {
+          $("#right").hide();
+          
+          $('#firepad').css('height', $(window).innerHeight());
+          $('#firepad').css("width",$(window).innerWidth());
+          
+          output.innerText = "";
+//          $('#right').css('height', $(window).innerHeight());
+//          $('#right').css("width",$(window).innerWidth()/2);
+        }
+      } 
+      
+      
+      function runCode() {
+        socket.emit('run', {code: firepad.getText()});
+      }
     </script>
   </body>
 </html>
