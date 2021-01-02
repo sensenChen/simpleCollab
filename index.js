@@ -6,8 +6,7 @@ const { spawn } = require('child_process');
 var io = require('socket.io').listen(server);
 var fs = require('fs');
 
-express.static(__dirname + '/public')
-
+app.use(express.static(__dirname + '/public'));
 app.get('/',function(req,res){
     res.sendFile(path.join(__dirname,'index.html'));
 });
@@ -21,7 +20,6 @@ io.on('connection', function(socket){
       } else {
         var promise = new Promise(function(resolve, reject) {
           const compile = spawn("g++", ["main.cpp"]);
-          
           compile.stderr.on('data', (data) => {
             reject(data.toString());
           });
@@ -29,9 +27,9 @@ io.on('connection', function(socket){
             resolve();
           });
         });
-        
+
         promise.then((val)=> {
-          const run = spawn("./a.out");        
+          const run = spawn("./a.out");
           run.stdout.on('data', (data) => {
             socket.emit("run_success", data.toString());
           });
@@ -46,9 +44,9 @@ io.on('connection', function(socket){
           socket.emit("run_fail", err);
         });
       }
-    }); 
+    });
   });
-  
+
   socket.on('disconnect', function(){
   });
 });

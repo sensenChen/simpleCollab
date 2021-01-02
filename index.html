@@ -2,97 +2,47 @@
 <html>
   <head>
     <title></title>
-    
-    <style>
-      #firepad {
-/*        border: 10px solid #47484B;*/
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 50%;
-/*        background-color: #f62;*/
-        width: 100%;
-      }
-      
-      body {
-        margin: 0px;
-        padding: 0px;
-        overflow: hidden;
-      }
-      
-      #left {
-        min-width: 500px;
-      }
-      
-      #right {
-        position: absolute;
-        top: 0;
-        bottom:0;
-        right: 0;
-/*        border: 1px solid black;*/
-        left: 50%;
-/*        min-width: 500px;*/
-        background: #f1f1f1;
-        border-left: 5px solid black;
-      }
-      
-      a.powered-by-firepad {
-        display: none;
-      }
-      
-      #output { 
-        position: relative;
-        background: white;
-        left: 0;
-        bottom:0;
-        right: 0;
-        top: 0;
-        height: 100%;
-        padding: 30px;
-      }
-      
-      #run {
-        width: 40%;
-        text-align: center;
-        font-size: 30px;
-        border: 1px solid black;
-        border-radius: 20px;
-        margin-left: auto;
-        margin-right: auto;
-        color: white;
-        background-color: #353538;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        cursor: pointer;
-      }
-      
-      #toggleRun {
-        height: 40px;
-/*        width: 10px;*/
-        background: #353538;
-        position: absolute;
-        top: 5;
-        right: 0;
-        margin-right: 50px;
-        margin-top: 10px;
-        z-index: 10;
-        border-radius: 20px;
-        color: white;
-        font-size: 30px;
-        padding-left: 10px;
-        padding-right: 10px;
-        -o-user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        user-select: none; 
-        cursor: pointer;
-      }
-    </style>
-  </head>  
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+  </head>
   <body onload="init()">
     <div>
       <div id="left">
+        <div class="menuContainer">
+          <ul class="menuList">
+            <li class="menuBtnLI">
+              <div onclick="clearEditor()" class="menuBtn">
+                Clear
+              </div>
+            </li>
+            <li class="menuBtnLI">
+              <div onclick="beautifyEditor()" class="menuBtn">
+                Format
+              </div>
+            </li>
+            <li class="menuBtnLI">
+              <div onclick="toggleRun()" class="menuBtn">
+                Toggle Run
+              </div>
+            </li>
+            <li class="menuBtnLI">
+              <div class="dropdown">
+                <div class="menuBtn">
+                  <span id="language">C++<span>
+                </div>
+                <div class="dropdown-content">
+                  <p onclick="setLanguage('Javascript')">
+                    Javascript
+                  </p>
+                  <p onclick="setLanguage('C++')">C++</p>
+                  <p onclick="setLanguage('Python')">Python</p>
+                  <p onclick="setLanguage('Java')">Java</p>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
         <div id="firepad"></div>
       </div>
       <div id="right" hidden="true">
@@ -100,12 +50,13 @@
         <div id="output">
         </div>
       </div>
-      <div onclick="toggleRun()" id="toggleRun">>_</div>
     </div>
+
+    <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
 
@@ -115,95 +66,14 @@
     <!-- Firepad -->
     <link rel="stylesheet" href="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.css" />
     <script src="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.min.js"></script>
-    
+
+    <!-- Ace Beautify -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.6.8/beautify.js"></script>
+
+    <!-- Socket IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
-    <script>
-      var socket = io();
-      var firepad;
-      var runOn = false;
-      
-      function init() {
-        // Initialize Firebase.
-        var config = {
-          apiKey: "AIzaSyDGwNauUSJWyRtwpJS2WoF-XYf3cdp29TM",
-          authDomain: "simplecollab-a6eb3.firebaseapp.com",
-          databaseURL: "https://simplecollab-a6eb3.firebaseio.com",
-          projectId: "simplecollab-a6eb3",
-          storageBucket: "",
-          messagingSenderId: "558227688118"
-        };
-        firebase.initializeApp(config);
 
-        // Get Firebase Database reference.
-        var firepadRef = firebase.database().ref();
-
-        // Create Ace editor.
-        var editor = ace.edit('firepad');
-        editor.setTheme("ace/theme/tomorrow");
-        editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setShowPrintMargin(false);
-        editor.getSession().setTabSize(2);
-        editor.getSession().setUseWrapMode(true);
-        editor.setOption('indentedSoftWrap', false);
-        editor.focus();
-        
-        // Create Firepad.
-        firepad = Firepad.fromACE(firepadRef, editor);
-        firepad.on('ready', function() {});
-        firepad.on('synced', function(isSynced) {});
-        
-        $('#firepad').css("height",$(window).innerHeight());
-//        $('#firepad').css("width",$(window).innerWidth());
-//        $('#firepad').css("min-width", '500px');
-        $('.ace_gutter').css("background","#47484B");
-        $('.ace_gutter').css("color","white");
-        $('.ace_gutter-active-line').css("background","#353538");
-      }
-      
-      $(window).resize(function(){
-        $('#firepad').css('height', $(window).innerHeight());
-        $('#firepad').css("width",$(window).innerWidth());
-        
-        $('#right').css('height', $(window).innerHeight());
-        $('#right').css("width",$(window).innerWidth()/2);
-      });
-      
-      socket.on("run_success", function(data) {
-//        console.log(data);
-        output.innerText = data;
-      })
-      
-      socket.on("run_fail", function(data) {
-        output.innerText = data;
-        
-      })
-      
-      function toggleRun() {
-        runOn = !runOn;
-        if(runOn) {
-          $("#right").show();
-          
-          $('#firepad').css('height', $(window).innerHeight());
-          $('#firepad').css("width",$(window).innerWidth()/2);
-
-          $('#right').css('height', $(window).innerHeight());
-          $('#right').css("width",$(window).innerWidth()/2);
-        } else {
-          $("#right").hide();
-          
-          $('#firepad').css('height', $(window).innerHeight());
-          $('#firepad').css("width",$(window).innerWidth());
-          
-          output.innerText = "";
-//          $('#right').css('height', $(window).innerHeight());
-//          $('#right').css("width",$(window).innerWidth()/2);
-        }
-      } 
-      
-      
-      function runCode() {
-        socket.emit('run', {code: firepad.getText()});
-      }
-    </script>
+    <!-- other scripts -->
+    <script src="/js/index.js"></script>
   </body>
 </html>
